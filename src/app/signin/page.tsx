@@ -59,6 +59,8 @@ export default function SignIn() {
             message: "Occurred an error in server. Try again later!",
           });
       }
+
+      setTimeout(() => setAlert({ type: null, message: null }), 5000);
     } finally {
       loading.toggle();
     }
