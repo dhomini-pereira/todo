@@ -1,26 +1,35 @@
 "use client";
 
+import Alert from "@/components/alert/Alert";
 import Loading from "@/components/loading/Loading";
 import Navbar from "@/components/navbar/Navbar";
 import { useLoading } from "@/contexts/LoadingContext";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
 type ISignUp = {
-  name: string;
   email: string;
   password: string;
 };
 
-export default function SignUp() {
+type IAlertProps = {
+  type: "ERROR" | "WARNING" | "SUCCESS" | null;
+  message: string | null;
+};
+
+export default function SignIn() {
   const { register, handleSubmit } = useForm<ISignUp>();
+  const [alert, setAlert] = useState<IAlertProps>({
+    type: null,
+    message: null,
+  });
   const loading = useLoading();
 
   const handleSignUp = async (data: ISignUp) => {
     loading.toggle();
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const url = new URL("/user/signup", API_URL).toString();
+      const url = new URL("/user/signin", API_URL).toString();
 
       const apiFetch = await fetch(url, {
         method: "POST",
@@ -30,11 +39,26 @@ export default function SignUp() {
         },
       });
 
+      if (!apiFetch.ok)
+        throw { body: await apiFetch.json(), statusCode: apiFetch.status };
+
       const response = await apiFetch.json();
 
       localStorage.setItem("TOKEN", response.token);
-    } catch (err) {
-      console.log(err);
+      window.location.href = "/";
+    } catch (err: any) {
+      if (err?.body && err?.statusCode) {
+        if (err.statusCode === 401)
+          setAlert({
+            type: "WARNING",
+            message: err.body.message,
+          });
+        else
+          setAlert({
+            type: "ERROR",
+            message: "Occurred an error in server. Try again later!",
+          });
+      }
     } finally {
       loading.toggle();
     }
@@ -44,30 +68,15 @@ export default function SignUp() {
     <>
       <Navbar />
       <Loading />
+      <Alert type={alert.type} message={alert.message} />
       <div className="flex items-center justify-center content-center mt-[5%]">
         <div className="card bg-base-100 w-96 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title mb-3">Register your account</h2>
+            <h2 className="card-title mb-3">Enter in your account</h2>
             <form
               onSubmit={handleSubmit(handleSignUp)}
               className="flex flex-col gap-3"
             >
-              <label className="input input-bordered flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4 opacity-70"
-                >
-                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
-                </svg>
-                <input
-                  type="text"
-                  className="grow"
-                  placeholder="Name"
-                  {...register("name", { required: true })}
-                />
-              </label>
               <label className="input input-bordered flex items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -107,7 +116,7 @@ export default function SignUp() {
               </label>
               <div className="card-actions justify-end">
                 <button className="btn btn-primary" type="submit">
-                  Register
+                  Enter
                 </button>
               </div>
             </form>
