@@ -1,33 +1,36 @@
 "use client";
+import { HasLoggedIn } from "@/services/HasLoggedIn";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
+type IUser = {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl?: string | null;
+};
+
 export default function Navbar() {
-  const [token, setToken] = useState<string | null>(null);
-  const [theme, setTheme] = useState<string>("dark");
+  const [user, setUser] = useState<IUser | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("THEME");
-    if (storedTheme) {
-      setTheme(storedTheme);
-      document.documentElement.setAttribute("data-theme", storedTheme);
-    }
+    (async () => {
+      const storedToken = localStorage.getItem("TOKEN");
 
-    const storedToken = localStorage.getItem("TOKEN");
-    setToken(storedToken);
+      const user_raw = await HasLoggedIn(storedToken);
+      if (!user_raw) return;
+
+      setUser(user_raw);
+    })();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("THEME", theme);
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  const handleThemeToggle = () => {
-    setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
-  };
-
   const logOut = () => {
-    setToken(null);
+    setUser(null);
     localStorage.removeItem("TOKEN");
+    router.push("/");
   };
 
   return (
@@ -87,10 +90,9 @@ export default function Navbar() {
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
           <input
+            value="light"
             type="checkbox"
-            checked={theme === "light"}
-            onChange={handleThemeToggle}
-            className="toggle"
+            className="toggle theme-controller"
           />
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -107,7 +109,7 @@ export default function Navbar() {
             <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
           </svg>
         </label>
-        {token ? (
+        {user ? (
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
@@ -115,10 +117,18 @@ export default function Navbar() {
               className="btn btn-ghost btn-circle avatar"
             >
               <div className="w-10 rounded-full">
-                <img
-                  alt="Tailwind CSS Navbar component"
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
+                {user.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    width="100"
+                    height="100"
+                  />
+                ) : (
+                  <div className="content-center justify-center h-full">
+                    {user.name.toUpperCase().slice(0, 2)}
+                  </div>
+                )}
               </div>
             </div>
             <ul
@@ -126,10 +136,9 @@ export default function Navbar() {
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
             >
               <li>
-                <a className="justify-between">
+                <Link href="/profile" className="justify-between">
                   Profile
-                  <span className="badge">New</span>
-                </a>
+                </Link>
               </li>
               <li>
                 <a>Dashboard</a>
