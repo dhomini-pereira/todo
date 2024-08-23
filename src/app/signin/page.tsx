@@ -4,7 +4,9 @@ import Alert from "@/components/alert/Alert";
 import Loading from "@/components/loading/Loading";
 import Navbar from "@/components/navbar/Navbar";
 import { useLoading } from "@/contexts/LoadingContext";
-import React, { useState } from "react";
+import { HasLoggedIn } from "@/services/HasLoggedIn";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 type ISignUp = {
@@ -17,13 +19,35 @@ type IAlertProps = {
   message: string | null;
 };
 
+type IUser = {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+};
+
 export default function SignIn() {
   const { register, handleSubmit } = useForm<ISignUp>();
   const [alert, setAlert] = useState<IAlertProps>({
     type: null,
     message: null,
   });
+  const [user, setUser] = useState<IUser | null>(null);
   const loading = useLoading();
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      loading.toggle();
+      const token = localStorage.getItem("TOKEN");
+      const user_raw = await HasLoggedIn(token);
+
+      if (!user_raw) return router.push("/");
+
+      setUser(user_raw);
+      loading.toggle();
+    })();
+  }, []);
 
   const handleSignUp = async (data: ISignUp) => {
     loading.toggle();
@@ -68,7 +92,7 @@ export default function SignIn() {
 
   return (
     <>
-      <Navbar />
+      <Navbar user={user} />
       <Loading />
       <Alert type={alert.type} message={alert.message} />
       <div className="flex items-center justify-center content-center mt-[5%]">

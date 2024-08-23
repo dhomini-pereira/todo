@@ -1,9 +1,9 @@
 "use client";
-import { HasLoggedIn } from "@/services/HasLoggedIn";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 type IUser = {
   id: string;
@@ -12,23 +12,10 @@ type IUser = {
   avatarUrl?: string | null;
 };
 
-export default function Navbar() {
-  const [user, setUser] = useState<IUser | null>(null);
+export default function Navbar({ user }: { user: IUser | null }) {
   const router = useRouter();
 
-  useEffect(() => {
-    (async () => {
-      const storedToken = localStorage.getItem("TOKEN");
-
-      const user_raw = await HasLoggedIn(storedToken);
-      if (!user_raw) return;
-
-      setUser(user_raw);
-    })();
-  }, []);
-
   const logOut = () => {
-    setUser(null);
     localStorage.removeItem("TOKEN");
     router.push("/");
   };
@@ -36,43 +23,9 @@ export default function Navbar() {
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h7"
-              />
-            </svg>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            <li>
-              <a href="/">Home</a>
-            </li>
-            <li>
-              <a href="/">ToDo</a>
-            </li>
-            <li>
-              <a href="/">Contact Us</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div className="navbar-center">
-        <a className="btn btn-ghost text-xl" href="/">
+        <Link className="btn btn-ghost text-xl" href="/">
           ToDo
-        </a>
+        </Link>
       </div>
       <div className="navbar-end gap-3">
         <label className="flex cursor-pointer gap-2">
@@ -119,14 +72,14 @@ export default function Navbar() {
               <div className="w-10 rounded-full">
                 {user.avatarUrl ? (
                   <Image
-                    src={user.avatarUrl}
-                    alt={user.name}
+                    src={user?.avatarUrl}
+                    alt={user?.name}
                     width="100"
                     height="100"
                   />
                 ) : (
                   <div className="content-center justify-center h-full">
-                    {user.name.toUpperCase().slice(0, 2)}
+                    {user?.name.toUpperCase().slice(0, 2)}
                   </div>
                 )}
               </div>
