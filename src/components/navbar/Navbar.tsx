@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
 
 type IUser = {
   id: string;
@@ -13,11 +12,9 @@ type IUser = {
 };
 
 export default function Navbar({ user }: { user: IUser | null }) {
-  const router = useRouter();
-
   const logOut = () => {
     localStorage.removeItem("TOKEN");
-    router.push("/");
+    window.location.href = "/";
   };
 
   return (
@@ -91,6 +88,11 @@ export default function Navbar({ user }: { user: IUser | null }) {
               <li>
                 <Link href="/profile" className="justify-between">
                   Profile
+                </Link>
+              </li>
+              <li>
+                <Link href="/todos" className="justify-between">
+                  My ToDo's
                 </Link>
               </li>
               <li>

@@ -42,9 +42,12 @@ export default function SignIn() {
       const token = localStorage.getItem("TOKEN");
       const user_raw = await HasLoggedIn(token);
 
-      if (!user_raw) return router.push("/");
+      if (user_raw) {
+        setUser(user_raw);
+        loading.toggle();
+        return router.push("/");
+      }
 
-      setUser(user_raw);
       loading.toggle();
     })();
   }, []);

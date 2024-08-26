@@ -9,7 +9,7 @@ export default function Alert({ type, message }: IAlertProps) {
   return (
     <>
       {type === "WARNING" && (
-        <div role="alert" className="alert alert-warning">
+        <div role="alert" className="alert alert-warning absolute z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 shrink-0 stroke-current"
@@ -28,7 +28,7 @@ export default function Alert({ type, message }: IAlertProps) {
       )}
 
       {type === "ERROR" && (
-        <div role="alert" className="alert alert-error">
+        <div role="alert" className="alert alert-error absolute z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 shrink-0 stroke-current"
@@ -47,7 +47,7 @@ export default function Alert({ type, message }: IAlertProps) {
       )}
 
       {type === "SUCCESS" && (
-        <div role="alert" className="alert alert-success">
+        <div role="alert" className="alert alert-success absolute z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 shrink-0 stroke-current"
