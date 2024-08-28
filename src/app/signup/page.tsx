@@ -6,6 +6,7 @@ import { useLoading } from "@/contexts/LoadingContext";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { HasLoggedIn } from "@/services/HasLoggedIn";
 
 type ISignUp = {
   name: string;
