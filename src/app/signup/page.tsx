@@ -5,6 +5,7 @@ import Navbar from "@/components/navbar/Navbar";
 import { useLoading } from "@/contexts/LoadingContext";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 type ISignUp = {
   name: string;
@@ -12,9 +13,34 @@ type ISignUp = {
   password: string;
 };
 
+type IUser = {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+};
+
 export default function SignUp() {
   const { register, handleSubmit } = useForm<ISignUp>();
   const loading = useLoading();
+  const [user, setUser] = useState<IUser | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      loading.toggle();
+      const token = localStorage.getItem("TOKEN");
+      const user_raw = await HasLoggedIn(token);
+
+      if (user_raw) {
+        setUser(user_raw);
+        loading.toggle();
+        return router.push("/");
+      }
+
+      loading.toggle();
+    })();
+  }, []);
 
   const handleSignUp = async (data: ISignUp) => {
     loading.toggle();
@@ -42,7 +68,7 @@ export default function SignUp() {
 
   return (
     <>
-      <Navbar />
+      <Navbar user={user} />
       <Loading />
       <div className="flex items-center justify-center content-center mt-[5%]">
         <div className="card bg-base-100 w-96 shadow-xl">
