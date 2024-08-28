@@ -3,7 +3,7 @@
 import Loading from "@/components/loading/Loading";
 import Navbar from "@/components/navbar/Navbar";
 import { useLoading } from "@/contexts/LoadingContext";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
