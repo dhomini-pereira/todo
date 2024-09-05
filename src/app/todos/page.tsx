@@ -90,7 +90,7 @@ export default function Todos() {
           </thead>
           <tbody>
             {tasks.map((task) => (
-              <tr>
+              <tr key={task.id}>
                 <th>
                   <label>
                     <input type="checkbox" className="checkbox" />

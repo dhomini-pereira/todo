@@ -92,7 +92,7 @@ export default function Navbar({ user }: { user: IUser | null }) {
               </li>
               <li>
                 <Link href="/todos" className="justify-between">
-                  My ToDo's
+                  My ToDo
                 </Link>
               </li>
               <li>
