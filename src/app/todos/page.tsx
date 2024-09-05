@@ -53,7 +53,7 @@ export default function Todos() {
   useEffect(() => {
     (async () => {
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const url = new URL("/task?page=10", API_URL);
+      const url = new URL("/task?page=1", API_URL);
       const token = localStorage.getItem("TOKEN");
       const tasks_raw = await fetch(url, {
         method: "GET",
@@ -102,15 +102,15 @@ export default function Todos() {
                   </div>
                 </td>
                 <td>
-                  Zemlak, Daniel and Leannon
+                  {task.description}
                   <br />
                   <span className="badge badge-ghost badge-sm">
                     Desktop Support Technician
                   </span>
                 </td>
-                <td>Purple</td>
+                <td>{task.status}</td>
                 <th>
-                  <button className="btn btn-ghost btn-xs">details</button>
+                  <button className="btn btn-ghost btn-xs">{new Date(task.createdAt).toDateString()}</button>
                 </th>
               </tr>
             ))}
