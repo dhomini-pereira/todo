@@ -68,7 +68,7 @@ export default function Todos() {
 
       loading.toggle();
     })();
-  }, []);
+  }, [loading]);
 
   useEffect(() => {
     (async () => {
@@ -92,7 +92,7 @@ export default function Todos() {
       setTasks(result.tasks);
       loading.toggle();
     })();
-  }, [page]);
+  }, [page, loading]);
 
   const changeStatus = async (id: number, status: Status) => {
     loading.toggle();

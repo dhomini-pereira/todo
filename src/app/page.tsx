@@ -29,7 +29,7 @@ export default function Home() {
 
       setUser(user_raw);
     })();
-  }, []);
+  }, [loading]);
   return (
     <>
       <Loading />

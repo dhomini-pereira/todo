@@ -54,7 +54,7 @@ export default function Profile() {
       setOriginalName(user_raw.name);
       loading.toggle();
     })();
-  }, []);
+  }, [loading]);
 
   const handleFormSubmit = async (updateUser: IUpdateUser) => {
     try {
