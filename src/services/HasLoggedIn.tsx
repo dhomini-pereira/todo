@@ -1,5 +1,3 @@
-"use server";
-
 export const HasLoggedIn = async (token: string | undefined | null) => {
   if (!token) return null;
 
