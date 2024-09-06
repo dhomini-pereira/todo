@@ -31,15 +31,12 @@ export default function SignUp() {
     (async () => {
       loading.toggle();
       const token = localStorage.getItem("TOKEN");
-      const user_raw = await HasLoggedIn(token);
+      const user_raw = await HasLoggedIn(token).finally(() => loading.toggle());
 
-      if (user_raw) {
-        setUser(user_raw);
-        loading.toggle();
-        return router.push("/");
-      }
+      if (!user_raw) localStorage.removeItem("TOKEN");
 
-      loading.toggle();
+      setUser(user_raw);
+      return router.push("/");
     })();
   }, []);
 

@@ -40,15 +40,12 @@ export default function SignIn() {
     (async () => {
       loading.toggle();
       const token = localStorage.getItem("TOKEN");
-      const user_raw = await HasLoggedIn(token);
+      const user_raw = await HasLoggedIn(token).finally(() => loading.toggle());
 
       if (user_raw) {
         setUser(user_raw);
-        loading.toggle();
         return router.push("/");
       }
-
-      loading.toggle();
     })();
   }, []);
 

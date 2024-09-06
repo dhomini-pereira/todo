@@ -20,9 +20,9 @@ export default function New() {
     (async () => {
       loading.toggle();
       const TOKEN = localStorage.getItem("TOKEN");
-      const user_raw = await HasLoggedIn(TOKEN);
+      const user_raw = await HasLoggedIn(TOKEN).finally(() => loading.toggle());
+      if (!user_raw) localStorage.removeItem("TOKEN");
       setUser(user_raw);
-      loading.toggle();
     })();
   }, []);
   return (

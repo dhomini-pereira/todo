@@ -1,3 +1,5 @@
+"use server";
+
 export const HasLoggedIn = async (token: string | undefined | null) => {
   if (!token) return null;
 
@@ -9,6 +11,7 @@ export const HasLoggedIn = async (token: string | undefined | null) => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    cache: 'no-cache'
   });
 
   if (!request.ok) return null;

@@ -19,19 +19,15 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      try {
-        loading.toggle();
-        const storedToken = localStorage.getItem("TOKEN");
+      loading.toggle();
+      const storedToken = localStorage.getItem("TOKEN");
 
-        const user_raw = await HasLoggedIn(storedToken);
-        if (!user_raw) throw new Error("User not authorized!");
+      const user_raw = await HasLoggedIn(storedToken).finally(() =>
+        loading.toggle()
+      );
+      if (!user_raw) localStorage.removeItem("TOKEN");
 
-        setUser(user_raw);
-      } catch (err) {
-        
-      } finally {
-        loading.toggle();
-      }
+      setUser(user_raw);
     })();
   }, []);
   return (

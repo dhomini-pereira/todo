@@ -1,0 +1,7 @@
+th {
+    @apply text-start;
+}
+
+td {
+    @apply text-start;
+}
