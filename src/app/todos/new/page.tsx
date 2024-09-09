@@ -24,7 +24,7 @@ export default function New() {
       if (!user_raw) localStorage.removeItem("TOKEN");
       setUser(user_raw);
     })();
-  }, [loading]);
+  }, []);
   return (
     <>
       <Navbar user={user} />

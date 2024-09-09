@@ -10,6 +10,8 @@ import "./todo.css";
 import { HttpInterceptor } from "@/services/HttpInterceptor";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import Table from "./components/table";
+import Paginator from "@/components/paginator/Paginator";
 
 type IUser = {
   id: string;
@@ -68,7 +70,7 @@ export default function Todos() {
 
       loading.toggle();
     })();
-  }, [loading]);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -92,7 +94,7 @@ export default function Todos() {
       setTasks(result.tasks);
       loading.toggle();
     })();
-  }, [page, loading]);
+  }, [page]);
 
   const changeStatus = async (id: number, status: Status) => {
     loading.toggle();
@@ -174,74 +176,8 @@ export default function Todos() {
         </Link>
       </div>
       <div className="overflow-x-auto ml-10 mr-10 flex flex-col gap-10">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map((task) => (
-              <tr key={task.id}>
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="font-bold">{task.title}</div>
-                  </div>
-                </td>
-                <td>{task.description}</td>
-                <td>
-                  <label className="form-control w-3/6">
-                    <select
-                      className={`select text-xs ${
-                        task.status === "DONE"
-                          ? "select-success"
-                          : task.status === "CANCELED"
-                          ? "select-error"
-                          : "select-warning"
-                      }`}
-                      defaultValue={task.status}
-                      onChange={async (e) => {
-                        e.preventDefault();
-                        await changeStatus(
-                          task.id,
-                          e.target.value.valueOf() as Status
-                        );
-                      }}
-                    >
-                      <option value={Status.CANCELED}>CANCELED</option>
-                      <option value={Status.PENDING}>PENDING</option>
-                      <option value={Status.DONE}>DONE</option>
-                    </select>
-                  </label>
-                </td>
-                <th>
-                  <button className="btn btn-ghost btn-xs">
-                    {new Date(task.createdAt).toDateString()}
-                  </button>
-                </th>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="flex justify-center">
-          <div className="join">
-            {Array.from({
-              length: totalPages,
-            }).map((_, i) => (
-              <Fragment key={i}>
-                <button
-                  className="join-item btn"
-                  onClick={() => setPage(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              </Fragment>
-            ))}
-          </div>
-        </div>
+        <Table tasks={tasks} changeStatus={changeStatus} />
+        <Paginator page={page} setPage={setPage} totalPages={totalPages} />
       </div>
     </>
   );

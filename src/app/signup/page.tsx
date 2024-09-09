@@ -38,7 +38,7 @@ export default function SignUp() {
       setUser(user_raw);
       return router.push("/");
     })();
-  }, [loading]);
+  }, []);
 
   const handleSignUp = async (data: ISignUp) => {
     loading.toggle();

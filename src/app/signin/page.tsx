@@ -47,7 +47,7 @@ export default function SignIn() {
         return router.push("/");
       }
     })();
-  }, [loading]);
+  }, []);
 
   const handleSignUp = async (data: ISignUp) => {
     loading.toggle();
