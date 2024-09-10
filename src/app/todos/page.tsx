@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import Table from "./components/table";
 import Paginator from "@/components/paginator/Paginator";
+import Modal from "./components/modal";
 
 type IUser = {
   id: string;
@@ -48,6 +49,8 @@ function TodosContent() {
   const [user, setUser] = useState<IUser | null>(null);
   const [tasks, setTasks] = useState<TodoList[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [selectedTask, setSelectedTask] = useState<TodoList>();
+
   const { register, handleSubmit } = useForm<ISearch>();
   const loading = useLoading();
   const router = useRouter();
@@ -146,9 +149,11 @@ function TodosContent() {
           </select>
           <button className="btn join-item">Search</button>
         </form>
-        <Link href="/todos/new" className="btn btn-outline btn-primary">
+        <label htmlFor="new-modal" className="btn btn-outline btn-primary">
           New
-        </Link>
+        </label>
+        <input type="checkbox" id="new-modal" className="modal-toggle" />
+        <Modal />
       </div>
       <div className="overflow-x-auto ml-10 mr-10 flex flex-col gap-10">
         <Table tasks={tasks} changeStatus={changeStatus} />
