@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import Table from "./components/table";
 import Paginator from "@/components/paginator/Paginator";
 import Modal from "./components/modal";
+import Alert from "@/components/alert/Alert";
 
 type IUser = {
   id: string;
@@ -45,11 +46,20 @@ type ITodoResultRaw = {
   tasks: Array<TodoList>;
 };
 
+type IAlertProps = {
+  type: "ERROR" | "WARNING" | "SUCCESS" | null;
+  message: string | null;
+};
+
 function TodosContent() {
   const [user, setUser] = useState<IUser | null>(null);
   const [tasks, setTasks] = useState<TodoList[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [selectedTask, setSelectedTask] = useState<TodoList>();
+  const [alertProps, setAlertProps] = useState<IAlertProps>({
+    type: null,
+    message: null,
+  });
 
   const { register, handleSubmit } = useForm<ISearch>();
   const loading = useLoading();
@@ -129,6 +139,7 @@ function TodosContent() {
   return (
     <>
       <Navbar user={user} />
+      <Alert type={alertProps.type} message={alertProps.message} />
       <Loading />
       <div className="flex justify-between mr-10 ml-10 gap-3 mb-3 mt-3">
         <form className="join" onSubmit={handleSubmit(handleSearch)}>
@@ -153,7 +164,7 @@ function TodosContent() {
           New
         </label>
         <input type="checkbox" id="new-modal" className="modal-toggle" />
-        <Modal />
+        <Modal setAlertProps={setAlertProps} />
       </div>
       <div className="overflow-x-auto ml-10 mr-10 flex flex-col gap-10">
         <Table tasks={tasks} changeStatus={changeStatus} />
