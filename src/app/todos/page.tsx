@@ -5,7 +5,7 @@ import Navbar from "@/components/navbar/Navbar";
 import { useLoading } from "@/contexts/LoadingContext";
 import { HasLoggedIn } from "@/services/HasLoggedIn";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState, Fragment } from "react";
+import React, { Fragment, Suspense, useEffect, useState } from "react";
 import "./todo.css";
 import { HttpInterceptor } from "@/services/HttpInterceptor";
 import Link from "next/link";
@@ -44,7 +44,7 @@ type ITodoResultRaw = {
   tasks: Array<TodoList>;
 };
 
-export default function Todos() {
+function TodosContent() {
   const [user, setUser] = useState<IUser | null>(null);
   const [tasks, setTasks] = useState<TodoList[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -163,5 +163,13 @@ export default function Todos() {
         />
       </div>
     </>
+  );
+}
+
+export default function Todos() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <TodosContent />
+    </Suspense>
   );
 }
