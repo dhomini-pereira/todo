@@ -4,8 +4,8 @@ import Loading from "@/components/loading/Loading";
 import Navbar from "@/components/navbar/Navbar";
 import { useLoading } from "@/contexts/LoadingContext";
 import { HasLoggedIn } from "@/services/HasLoggedIn";
-import { useRouter } from "next/navigation";
-import React, { Fragment, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState, Fragment } from "react";
 import "./todo.css";
 import { HttpInterceptor } from "@/services/HttpInterceptor";
 import Link from "next/link";
@@ -46,100 +46,81 @@ type ITodoResultRaw = {
 
 export default function Todos() {
   const [user, setUser] = useState<IUser | null>(null);
-  const [tasks, setTasks] = useState<TodoList[] | []>([]);
-  const [page, setPage] = useState<number>(1);
+  const [tasks, setTasks] = useState<TodoList[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
   const { register, handleSubmit } = useForm<ISearch>();
-
   const loading = useLoading();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    (async () => {
-      loading.toggle();
-      const token = localStorage.getItem("TOKEN");
-      const user_raw = await HasLoggedIn(token);
-
-      if (!user_raw) {
-        loading.toggle();
-        localStorage.removeItem("TOKEN");
-        return router.push("/");
-      }
-
+  const fetchUser = async () => {
+    const token = localStorage.getItem("TOKEN");
+    const user_raw = await HasLoggedIn(token);
+    if (!user_raw) {
+      localStorage.removeItem("TOKEN");
+      router.push("/");
+    } else {
       setUser(user_raw);
+    }
+  };
 
-      loading.toggle();
-    })();
-  }, []);
+  const fetchTasks = async () => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    const url = new URL("/task", API_URL);
+    const params = new URLSearchParams(searchParams.toString());
 
-  useEffect(() => {
-    (async () => {
-      loading.toggle();
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const url = new URL("/task", API_URL);
-      const params = new URLSearchParams({
-        page: String(page),
-      });
-      url.search = params.toString();
+    params.set("page", params.get("page") || "1");
 
-      const tasks_raw = await HttpInterceptor(url, {
-        method: "GET",
-      });
+    url.search = params.toString();
+    const tasks_raw = await HttpInterceptor(url, { method: "GET" });
 
-      if (!tasks_raw.ok) return;
-
+    if (tasks_raw.ok) {
       const result: ITodoResultRaw = await tasks_raw.json();
-
       setTotalPages(Math.ceil(result.total / 10));
       setTasks(result.tasks);
+    }
+  };
+
+  useEffect(() => {
+    const loadInitialData = async () => {
       loading.toggle();
-    })();
-  }, [page]);
+      await fetchUser();
+      await fetchTasks();
+      loading.toggle();
+    };
+    loadInitialData();
+  }, [searchParams]);
 
   const changeStatus = async (id: number, status: Status) => {
     loading.toggle();
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const url = new URL("/task/:id".replace(":id", String(id)), API_URL);
+    const url = new URL(`/task/${id}`, API_URL);
 
     const request = await HttpInterceptor(url, {
       method: "PUT",
       body: JSON.stringify({ status }),
     });
 
-    if (!request.ok) return;
-
-    const result = await request.json();
-
-    setTasks((prev) => {
-      prev[prev.findIndex((task) => task.id === id)] = result;
-      return prev;
-    });
-
+    if (request.ok) {
+      const updatedTask = await request.json();
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === id ? updatedTask : task))
+      );
+    }
     loading.toggle();
   };
 
-  const handleSearch = async (data: ISearch) => {
-    if (data.status === "Filter") delete data.status;
-    if (!data.text || data.text.trim() === "") delete data.text;
+  const handleSearch = (data: ISearch) => {
+    const params = new URLSearchParams(searchParams.toString());
 
-    loading.toggle();
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const url = new URL("/task", API_URL);
-    const query = new URLSearchParams({ ...data, page: "1" });
+    params.set("page", "1");
 
-    url.search = query.toString();
+    data.status === "Filter"
+      ? params.delete("status")
+      : params.set("status", data.status || "");
+    data.text ? params.set("text", data.text) : params.delete("text");
 
-    const request = await HttpInterceptor(url, {
-      method: "GET",
-    }).finally(() => loading.toggle());
-
-    if (!request.ok) return;
-
-    const tasks = await request.json();
-
-    setTasks(tasks.tasks);
-    setPage(1);
-    setTotalPages(Math.ceil(tasks.total / 10));
+    router.push(`?${params.toString()}`);
   };
 
   return (
@@ -148,15 +129,11 @@ export default function Todos() {
       <Loading />
       <div className="flex justify-between mr-10 ml-10 gap-3 mb-3 mt-3">
         <form className="join" onSubmit={handleSubmit(handleSearch)}>
-          <div>
-            <div>
-              <input
-                className="input input-bordered join-item"
-                placeholder="Search"
-                {...register("text")}
-              />
-            </div>
-          </div>
+          <input
+            className="input input-bordered join-item"
+            placeholder="Search"
+            {...register("text")}
+          />
           <select
             className="select select-bordered join-item"
             defaultValue={"Filter"}
@@ -167,9 +144,7 @@ export default function Todos() {
             <option value="PENDING">PENDING</option>
             <option value="DONE">DONE</option>
           </select>
-          <div className="indicator">
-            <button className="btn join-item">Search</button>
-          </div>
+          <button className="btn join-item">Search</button>
         </form>
         <Link href="/todos/new" className="btn btn-outline btn-primary">
           New
@@ -177,7 +152,15 @@ export default function Todos() {
       </div>
       <div className="overflow-x-auto ml-10 mr-10 flex flex-col gap-10">
         <Table tasks={tasks} changeStatus={changeStatus} />
-        <Paginator page={page} setPage={setPage} totalPages={totalPages} />
+        <Paginator
+          page={Number(searchParams.get("page")) || 1}
+          setPage={(page) => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("page", String(page));
+            router.push(`?${params.toString()}`);
+          }}
+          totalPages={totalPages}
+        />
       </div>
     </>
   );
