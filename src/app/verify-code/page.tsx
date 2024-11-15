@@ -3,7 +3,7 @@
 import { useLoading } from "@/context/LoadingContext";
 import api from "@/services/api.service";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { API_URL } from "../globals";
 import { toast } from "react-toastify";
@@ -13,7 +13,7 @@ type InputCode = {
   code: string;
 };
 
-export default function VerifyCode() {
+function VerifyCodeComponent() {
   const { register, handleSubmit, setValue } = useForm<InputCode>({
     defaultValues: { userId: "" },
   });
@@ -80,5 +80,13 @@ export default function VerifyCode() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function VerifyCode() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <VerifyCodeComponent />
+    </Suspense>
   );
 }
