@@ -53,11 +53,11 @@ export default function WorkAreaInfo() {
 
   useEffect(() => {
     (() => {
-      const socket = io(
-        `${API_URL_WS}?token=${sessionStorage.getItem(
-          "ACCESS_TOKEN"
-        )}&workareaId=${workareaId}`
-      );
+      const socket = io(`${API_URL_WS}?workareaId=${workareaId}`, {
+        extraHeaders: {
+          Authorization: sessionStorage.getItem("ACCESS_TOKEN") as string,
+        },
+      });
       socket.on("create_task", (data) => {
         setTasks((prev) => {
           return {
