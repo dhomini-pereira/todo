@@ -53,55 +53,67 @@ export default function WorkAreaInfo() {
 
   useEffect(() => {
     (() => {
-      const socket = io(`${API_URL_WS}?workareaId=${workareaId}`, {
-        extraHeaders: {
-          Authorization: sessionStorage.getItem("ACCESS_TOKEN") as string,
-        },
-      });
-      socket.on("create_task", (data) => {
-        setTasks((prev) => {
-          return {
-            ...prev,
-            pending: [...prev.pending, data],
-          };
+      try {
+        const socket = io(`${API_URL_WS}?workareaId=${workareaId}`, {
+          extraHeaders: {
+            Authorization: sessionStorage.getItem("ACCESS_TOKEN") as string,
+          },
         });
-      });
-
-      socket.on("update_task", (data) => {
-        setTasks((prev) => {
-          const taskList = [...prev.done, ...prev.progressing, ...prev.pending];
-
-          const oldListTask = taskList.filter((t) => t.id !== data.id);
-          const newListTask = [...oldListTask, data];
-
-          return {
-            pending: newListTask.filter(
-              (task: ITask) => task.status === "PENDING"
-            ),
-            progressing: newListTask.filter(
-              (task: ITask) => task.status === "PROGRESSING"
-            ),
-            done: newListTask.filter((task: ITask) => task.status === "DONE"),
-          };
+        socket.on("create_task", (data) => {
+          setTasks((prev) => {
+            return {
+              ...prev,
+              pending: [...prev.pending, data],
+            };
+          });
         });
-      });
 
-      socket.on("delete_task", (data) => {
-        setTasks((prev) => {
-          const taskList = [...prev.done, ...prev.progressing, ...prev.pending];
+        socket.on("update_task", (data) => {
+          setTasks((prev) => {
+            const taskList = [
+              ...prev.done,
+              ...prev.progressing,
+              ...prev.pending,
+            ];
 
-          const newListTask = taskList.filter((t) => t.id !== data.id);
-          return {
-            pending: newListTask.filter(
-              (task: ITask) => task.status === "PENDING"
-            ),
-            progressing: newListTask.filter(
-              (task: ITask) => task.status === "PROGRESSING"
-            ),
-            done: newListTask.filter((task: ITask) => task.status === "DONE"),
-          };
+            const oldListTask = taskList.filter((t) => t.id !== data.id);
+            const newListTask = [...oldListTask, data];
+
+            return {
+              pending: newListTask.filter(
+                (task: ITask) => task.status === "PENDING"
+              ),
+              progressing: newListTask.filter(
+                (task: ITask) => task.status === "PROGRESSING"
+              ),
+              done: newListTask.filter((task: ITask) => task.status === "DONE"),
+            };
+          });
         });
-      });
+
+        socket.on("delete_task", (data) => {
+          setTasks((prev) => {
+            const taskList = [
+              ...prev.done,
+              ...prev.progressing,
+              ...prev.pending,
+            ];
+
+            const newListTask = taskList.filter((t) => t.id !== data.id);
+            return {
+              pending: newListTask.filter(
+                (task: ITask) => task.status === "PENDING"
+              ),
+              progressing: newListTask.filter(
+                (task: ITask) => task.status === "PROGRESSING"
+              ),
+              done: newListTask.filter((task: ITask) => task.status === "DONE"),
+            };
+          });
+        });
+      } catch (err: any) {
+        router.push("/workarea");
+      }
     })();
   }, []);
 
@@ -133,7 +145,7 @@ export default function WorkAreaInfo() {
 
         setTasks(httpResponse);
       } catch (err: any) {
-        toast.error(err.response?.data?.error);
+        router.push("/workarea");
       } finally {
         loading.toggle();
       }
