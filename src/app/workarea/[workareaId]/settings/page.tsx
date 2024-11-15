@@ -89,10 +89,9 @@ export default function Settings() {
           success: "O usuário foi convidado com sucesso!",
         }
       )
-      .then((request) => {
+      .then((_) => {
         setIsModalOpen(false);
         resetUserForm();
-        setUsers((prev) => (prev ? [...prev, request.data] : [request.data]));
       })
       .catch((reason) => toast.error(reason.response.data.error));
   };
