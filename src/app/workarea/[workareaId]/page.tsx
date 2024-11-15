@@ -56,7 +56,7 @@ export default function WorkAreaInfo() {
       try {
         const socket = io(`${API_URL_WS}?workareaId=${workareaId}`, {
           auth: {
-            token: sessionStorage.getItem("ACCESS_TOKEN"),
+            token: localStorage.getItem("ACCESS_TOKEN"),
           },
         });
         socket.on("create_task", (data) => {

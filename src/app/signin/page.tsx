@@ -20,7 +20,7 @@ export default function SignIn() {
   const loading = useLoading();
 
   useEffect(() => {
-    if (sessionStorage.getItem("TOKEN")) {
+    if (localStorage.getItem("TOKEN")) {
       router.push("/workarea");
     }
   }, []);
@@ -31,8 +31,8 @@ export default function SignIn() {
       const url = `${API_URL}/auth/signin`;
       const response = await api.post(url, user);
 
-      sessionStorage.setItem("ACCESS_TOKEN", response.data.accessToken);
-      sessionStorage.setItem("REFRESH_TOKEN", response.data.refreshToken);
+      localStorage.setItem("ACCESS_TOKEN", response.data.accessToken);
+      localStorage.setItem("REFRESH_TOKEN", response.data.refreshToken);
       router.push("/workarea");
     } catch (err: any) {
       toast.error(err.response.data.error);

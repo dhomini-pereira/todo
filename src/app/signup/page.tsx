@@ -21,7 +21,7 @@ export default function Page() {
   const loading = useLoading();
 
   useEffect(() => {
-    if (sessionStorage.getItem("TOKEN")) {
+    if (localStorage.getItem("TOKEN")) {
       router.push("/workarea");
     }
   }, []);

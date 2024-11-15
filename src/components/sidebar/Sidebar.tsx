@@ -2,6 +2,8 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Icon from "../icon/Icon";
+import api from "@/services/api.service";
+import { API_URL } from "@/app/globals";
 
 interface ISidebarProps {
   MenuIsActive: boolean;
@@ -20,9 +22,14 @@ export default function Sidebar({
   const pathName = usePathname();
   const router = useRouter();
 
-  const signOut = () => {
-    sessionStorage.clear();
-    router.push("/signin");
+  const signOut = async () => {
+    localStorage.clear();
+    try {
+      await api.post(`${API_URL}/auth/signout`);
+    } catch (err: any) {
+    } finally {
+      router.push("/signin");
+    }
   };
 
   const menuItems: IMenuItem[] = [
@@ -54,7 +61,12 @@ export default function Sidebar({
             style={{ backgroundColor: "#0A070E" }}
           >
             {menuItems.map((item, index) => (
-              <a key={index} href={item.href} className="rounded-full" id={item.href.replace("/", "")}>
+              <a
+                key={index}
+                href={item.href}
+                className="rounded-full"
+                id={item.href.replace("/", "")}
+              >
                 {item.icon}
               </a>
             ))}

@@ -8,7 +8,8 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 type IUser = {
-  token: string;
+  code: string;
+  userId: string;
   password?: string;
   confirm_password?: string;
 };
@@ -20,28 +21,30 @@ type IProps = {
 export default function ResetPassword({ searchParams }: IProps) {
   const { register, handleSubmit, setValue } = useForm<IUser>();
   const router = useRouter();
-  const token = searchParams.token;
+  const userId = searchParams.userId;
+  const code = searchParams.code;
   const [showPassword, setShowPassword] = useState<Boolean>(false);
   const [showConfirmPassword, setShowConfirmPasword] = useState<Boolean>(false);
 
   useEffect(() => {
     (async () => {
-      if (!token) {
+      if (!userId || !code) {
         return router.push("/");
       }
 
-      setValue("token", token);
+      setValue("userId", userId);
+      setValue("code", code);
     })();
-  }, [token]);
+  }, [searchParams]);
 
   const handle = (data: IUser) => {
     if (data.password !== data.confirm_password)
-      return toast.error("Passwords do not match");
+      return toast.error("Senhas não conferem");
 
     toast
-      .promise(api.post(API_URL + "/reset-password", data), {
-        pending: "Resetting password...",
-        success: "Password reset successfully!",
+      .promise(api.post(API_URL + "/auth/reset-password", data), {
+        pending: "Resetando sua senha!",
+        success: "Senha resetada com sucesso!",
       })
       .then((_) => router.push("/signin"))
       .catch((err) => toast.error(err.response.data.error));
@@ -50,9 +53,9 @@ export default function ResetPassword({ searchParams }: IProps) {
   return (
     <div className="box w-full h-screen flex justify-center items-center">
       <div className=" relative max-sm:px-6 max-sm:max-w-xl max-sm:py-6 max-sm:w-5/6 w-3/5 h-fit max-w-md border border-blue-500 bg-slate-900 rounded-3xl py-9 px-12">
-        <h1 className="text-3xl text-slate-200">Reset Your Credentials</h1>
+        <h1 className="text-3xl text-slate-200">Resete sua senha</h1>
         <p className="text-sm text-slate-400 font-light mb-6">
-          Please fill out the form below to reset your password.
+          Por favor, preencha o formulário abaixo para redefinir sua senha.
         </p>
         <form
           onSubmit={handleSubmit(handle)}
@@ -61,14 +64,14 @@ export default function ResetPassword({ searchParams }: IProps) {
           <div className="relative">
             <input
               type={`${showPassword ? "text" : "password"}`}
-              placeholder="New password"
+              placeholder="Nova senha"
               {...register("password", { required: true, minLength: 6 })}
               className="w-full bg-slate-950 border-2 border-blue-500 rounded-md h-10 outline-none focus:border-blue-700 indent-3 ease-in duration-200"
             />
             <button
               onClick={(e) => {
-                e.preventDefault()
-                setShowPassword((prevState) => !prevState)
+                e.preventDefault();
+                setShowPassword((prevState) => !prevState);
               }}
               type="button"
               className="bg-sky-700 p-1 rounded-md absolute right-2 top-[6px]"
@@ -111,13 +114,13 @@ export default function ResetPassword({ searchParams }: IProps) {
                 required: true,
                 minLength: 6,
               })}
-              placeholder="Confirm password"
+              placeholder="Confirme sua senha"
               className="w-full bg-slate-950 border-2 border-blue-500 rounded-md h-10 outline-none focus:border-blue-700 indent-3 ease-in duration-200"
             />
             <button
               onClick={(e) => {
-                e.preventDefault()
-                setShowConfirmPasword((prevState) => !prevState)
+                e.preventDefault();
+                setShowConfirmPasword((prevState) => !prevState);
               }}
               className="bg-sky-700 p-1 rounded-md absolute right-2 top-[6px]"
             >
@@ -157,7 +160,7 @@ export default function ResetPassword({ searchParams }: IProps) {
             type="submit"
             className="bg-blue-500 rounded-md h-10 hover:bg-blue-700 ease-in duration-200 text-white"
           >
-            Reset Password
+            Resetar
           </button>
         </form>
       </div>

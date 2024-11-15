@@ -15,9 +15,9 @@ export default function ForgotPassword() {
 
   const handle = async (data: IUser) => {
     await toast
-      .promise(api.post(API_URL + "/forgot-password", data), {
-        success: "Verify your E-Mail!",
-        pending: "Sending E-Mail",
+      .promise(api.post(API_URL + "/auth/forgot-password", data), {
+        success: "Verifique seu E-Mail!",
+        pending: "Enviando E-Mail...",
       })
       .catch((err) => toast.error(err.response.data.error));
   };
@@ -41,9 +41,9 @@ export default function ForgotPassword() {
             </svg>
           </a>
         </div>
-        <h1 className="text-slate-200 text-3xl">Forgot Your Password?</h1>
+        <h1 className="text-slate-200 text-3xl">Esqueceu sua senha?</h1>
         <p className="text-sm text-slate-400 font-light mb-6">
-          Please enter your email below to fix it.
+          Por favor, insira seu E-Mail para resolver isso.
         </p>
         <form
           onSubmit={handleSubmit(handle)}
@@ -51,7 +51,7 @@ export default function ForgotPassword() {
         >
           <input
             type="email"
-            placeholder="E-mail"
+            placeholder="E-Mail"
             className="bg-slate-950 border-2 focus:border-blue-700 border-blue-500 rounded-md h-10 outline-none indent-3 w-[90%] text-white"
             {...register("email", { required: true })}
           />
