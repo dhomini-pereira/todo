@@ -5,6 +5,7 @@ import { useNavbar } from "@/context/NavbarContext";
 import Icon from "../icon/Icon";
 import api from "@/services/api.service";
 import { API_URL } from "@/app/globals";
+import { toast } from "react-toastify";
 
 type IUser = {
   createdAt: string;
@@ -14,6 +15,14 @@ type IUser = {
   username: string;
 };
 
+type IInvite = {
+  workareaId: number;
+  userId: number;
+  workarea: {
+    name: string;
+  };
+};
+
 type IProps = {
   user: IUser | undefined;
 };
@@ -21,7 +30,7 @@ type IProps = {
 export default function Navbar({ user }: IProps) {
   const { isActive, toggle } = useNavbar();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [invites, setInvites] = useState([]);
+  const [invites, setInvites] = useState<IInvite[]>([]);
   useState(() => {
     (async () => {
       const inviteList = await api.get(`${API_URL}/invite`);
@@ -30,6 +39,29 @@ export default function Navbar({ user }: IProps) {
   });
 
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
+  const handleReject = async (id: number) => {
+    try {
+      const url = `${API_URL}/invite`;
+      await api.post(url, { workareaId: id, accepted: false });
+
+      setInvites((prev) => prev.filter((invite) => invite.workareaId !== id));
+      toggleDropdown();
+    } catch (err: any) {
+      toast.error(err.response.data.error);
+    }
+  };
+
+  const handleAccept = async (id: number) => {
+    try {
+      const url = `${API_URL}/invite`;
+      await api.post(url, { workareaId: id, accepted: true });
+
+      setInvites((prev) => prev.filter((invite) => invite.workareaId !== id));
+      toggleDropdown();
+    } catch (err: any) {
+      toast.error(err.response.data.error);
+    }
+  };
 
   return (
     <div className="bg-[#0A070E] w-screen text-slate-200 h-12 text-lg flex items-center justify-between pl-4 pr-10">
@@ -60,15 +92,32 @@ export default function Navbar({ user }: IProps) {
         />
 
         {isDropdownOpen && (
-          <div className="absolute top-12 right-0 bg-[#1a1a1a] text-slate-200 w-96 rounded shadow-lg">
+          <div className="absolute top-12 right-0 bg-slate-800 w-[400px] p-[10px] flex justify-between items-center rounded-[10px]">
             <ul>
               {invites.map((invite: any, index) => (
-                <li
-                  className="py-2 hover:bg-[#333] cursor-pointer"
-                  key={index}
-                >
-                  Você foi convidado(a) para a área de trabalho:
-                  {invite.workarea.name}
+                <li className="flex flex-row gap-3 items-center" key={index}>
+                  <div className="flex flex-col gap-3">
+                    <div>Você foi convidado(a) para a área de trabalho:</div>
+                    <div className="font-bold">{invite.workarea.name}</div>
+                  </div>
+                  <div className="flex flex-row gap-3">
+                    <Icon
+                      iconName="check"
+                      className="size-6 cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAccept(invite.workareaId);
+                      }}
+                    />
+                    <Icon
+                      iconName="close"
+                      className="size-6 cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleReject(invite.workareaId);
+                      }}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>

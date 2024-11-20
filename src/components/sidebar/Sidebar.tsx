@@ -23,7 +23,8 @@ export default function Sidebar({
   const router = useRouter();
 
   const signOut = async () => {
-    localStorage.clear();
+    localStorage.removeItem("ACCESS_TOKEN");
+    localStorage.removeItem("REFRESH_TOKEN");
     try {
       await api.post(`${API_URL}/auth/signout`);
     } catch (err: any) {
