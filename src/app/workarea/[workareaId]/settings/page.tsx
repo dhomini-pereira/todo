@@ -23,6 +23,17 @@ type IAddUser = {
   username: string;
 };
 
+type IMember = {
+  id: string;
+  email: string;
+  username: string;
+  memberWorkarea?: {
+    role: "LEADER" | "MEMBER";
+  }[];
+  createdAt: string;
+  imageURL: null;
+};
+
 export default function Settings() {
   const { workareaId } = useParams();
   const { isActive } = useNavbar();
@@ -35,7 +46,7 @@ export default function Settings() {
   } = useForm<IAddUser>();
   const [workarea, setWorkarea] = useState<IWorkarea>();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<IMember[]>([]);
   const [user, setUser] = useState<IUser>();
 
   useEffect(() => {
@@ -48,8 +59,24 @@ export default function Settings() {
             api.get(`${API_URL}/workarea/${workareaId}/members`),
             api.get(`${API_URL}/user`),
           ]);
+        console.log(membersRequest.data);
+
         setWorkarea(workareaRequest.data);
-        setUsers(membersRequest.data.users);
+        setUsers(
+          membersRequest.data.sort((a: IMember, b: IMember) => {
+            const aRole = a.memberWorkarea?.[0]?.role;
+            const bRole = b.memberWorkarea?.[0]?.role;
+
+            if (!aRole) return -1;
+            if (!bRole) return 1;
+
+            if (aRole === "LEADER" && bRole === "MEMBER") return -1;
+            if (aRole === "MEMBER" && bRole === "LEADER") return 1;
+
+            return 0;
+          })
+        );
+
         setUser(userRequest.data);
       } catch (err: any) {
         toast.error(err.response?.data?.error);
@@ -96,21 +123,17 @@ export default function Settings() {
       .catch((reason) => toast.error(reason.response.data.error));
   };
 
-  const handleRemoveUser = (username: string) => {
+  const handleRemoveUser = (memberId: string) => {
     toast
       .promise(
-        api.delete(`${API_URL}/workarea/${workareaId}/member`, {
-          data: {
-            member: username,
-          },
-        }),
+        api.delete(`${API_URL}/workarea/${workareaId}/member/${memberId}`),
         {
           pending: "Removendo usuário da área de trabalho...",
           success: "O usuário foi removido com sucesso!",
         }
       )
       .then(() => {
-        setUsers(users.filter((user) => user.username !== username));
+        setUsers(users.filter((user) => user.id !== memberId));
       })
       .catch((reason) => toast.error(reason.response.data.error));
   };
@@ -133,13 +156,13 @@ export default function Settings() {
               suas necessidades.
             </p>
           </div>
-          <div className="mt-8 flex flex-wrap gap-2 max-sm:flex-col w-[100%] max-sm:h-[54vh] max-sm:pr-2 overflow-y-auto max-sm:flex justify-center items-center h-full">
-            <div className="flex flex-col gap-6 justify-center h-fit w-[100%] max-w-[700px]">
+          <div className="mt-8 flex flex-wrap gap-2 max-sm:flex-col w-full max-sm:h-[54vh] max-sm:pr-2 overflow-y-auto max-sm:flex justify-center items-center h-full">
+            <div className="flex flex-col gap-6 justify-center h-fit w-full max-w-[800px]">
               <form
                 className="flex flex-col"
                 onSubmit={handleSubmit(handleUpdateWorkarea)}
               >
-                <div className="flex  w-full gap-4">
+                <div className="flex w-full gap-4">
                   <input
                     type="text"
                     placeholder={workarea?.name}
@@ -206,7 +229,6 @@ export default function Settings() {
                 <table className="min-w-full bg-slate-800 text-slate-200">
                   <thead>
                     <tr>
-                      <th className="py-3 px-6 text-left max-md:hidden">ID</th>
                       <th className="py-3 px-6 text-left  max-md:hidden">
                         E-Mail
                       </th>
@@ -214,13 +236,13 @@ export default function Settings() {
                       <th className="py-3 px-6 text-left max-md:hidden">
                         Imagem
                       </th>
+                      <th className="py-3 px-6 text-left">Cargo</th>
                       <th className="py-3 px-6 text-left">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users?.map((user) => (
                       <tr key={user.id} className="border-b border-slate-700">
-                        <td className="py-3 px-6 max-md:hidden">{user.id}</td>
                         <td className="py-3 px-6 max-md:hidden">
                           {user.email}
                         </td>
@@ -232,7 +254,10 @@ export default function Settings() {
                               className="w-10 h-10 rounded-full hidden max-md:block"
                             />
                           ) : (
-                            <Icon iconName="profile" className="h-9" />
+                            <Icon
+                              iconName="profile"
+                              className="h-10 hidden max-md:block"
+                            />
                           )}
                           {user.username}
                         </td>
@@ -244,14 +269,21 @@ export default function Settings() {
                               className="w-10 h-10 rounded-full"
                             />
                           ) : (
-                            "No Image"
+                            <Icon iconName="profile" className="h-10" />
                           )}
+                        </td>
+                        <td>
+                          {user.memberWorkarea && user.memberWorkarea[0]
+                            ? user.memberWorkarea[0].role === "MEMBER"
+                              ? "Membro"
+                              : "Líder"
+                            : "Administrador"}
                         </td>
                         <td className="py-3 px-6">
                           <Icon
                             iconName="minus"
                             className="h-6 cursor-pointer text-red-500 hover:text-white hover:bg-red-500 hover:rounded-full transition-all duration-200"
-                            onClick={() => handleRemoveUser(user.username)}
+                            onClick={() => handleRemoveUser(user.id)}
                           />
                         </td>
                       </tr>

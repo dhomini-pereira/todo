@@ -6,7 +6,7 @@ import api from "@/services/api.service";
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../globals";
 import { useLoading } from "@/context/LoadingContext";
-import { useForm, useFormState } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { IUser } from "@/interfaces/user.interface";
 
@@ -39,8 +39,6 @@ export default function Profile() {
       }
     })();
   }, []);
-
-  const { isDirty } = useFormState({ control });
 
   const changePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -188,20 +186,19 @@ export default function Profile() {
                   />
                   <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Senha"
                     className="p-2 rounded-md bg-slate-700 text-slate-200"
                     {...register("password", { minLength: 6 })}
                   />
                   <input
                     type="password"
-                    placeholder="Confirm password"
+                    placeholder="Confirme sua senha"
                     className="p-2 rounded-md bg-slate-700 text-slate-200"
                     {...register("confirm_password", { minLength: 6 })}
                   />
                   <button
                     type="submit"
                     className="py-2 px-4 bg-sky-600 text-white rounded-md hover:bg-sky-700 ease-in-out duration-500"
-                    disabled={!isDirty}
                   >
                     Salvar
                   </button>

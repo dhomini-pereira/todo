@@ -42,13 +42,18 @@ export default function WorkArea() {
     if (!hasSeenTutorial) {
       const driverObj = driver({
         showProgress: true,
+        doneBtnText: "Finalizar",
+        nextBtnText: "Próximo",
+        prevBtnText: "Anterior",
+        animate: true,
+        allowKeyboardControl: true,
         steps: [
           {
             element: "#workAreasLocation",
             popover: {
-              title: "Your Work Areas",
+              title: "Suas áreas de trabalho",
               description:
-                "Here, you can manage or create all your PERSONAL and PROFESSIONAL work areas.",
+                "Aqui, você pode gerenciar ou criar todas as suas áreas de trabalho, seja PERSONAL ou PROFESSIONAL.",
               side: "left",
               align: "start",
             },
@@ -56,9 +61,9 @@ export default function WorkArea() {
           {
             element: "#workAreasLocation a:nth-child(1)",
             popover: {
-              title: "Create a New Work Area",
+              title: "Criar nova área de trabalho",
               description:
-                "Choose between a PROFESSIONAL or PERSONAL work area.",
+                "Escolha entre PERSONAL or PROFESSIONAL work areas.  Click to create a new one.",
               side: "left",
               align: "start",
             },
@@ -66,9 +71,9 @@ export default function WorkArea() {
           {
             element: "#profile",
             popover: {
-              title: "Edit Your Profile",
+              title: "Editar seu perfil",
               description:
-                "You can update your photo, email, and password here!",
+                "Você pode trocar sua foto, nome de usuário e senha aqui!",
               side: "left",
               align: "start",
             },
@@ -76,9 +81,9 @@ export default function WorkArea() {
           {
             element: "#workarea",
             popover: {
-              title: "Manage Your Work Areas",
+              title: "Gerenciar suas áreas de trabalho",
               description:
-                "In this section, you can manage or create all your PERSONAL and PROFESSIONAL work areas.",
+                "Nesta seção, você pode gerenciar e criar suas áreas de trabalho.",
               side: "left",
               align: "start",
             },
@@ -86,8 +91,8 @@ export default function WorkArea() {
           {
             element: ".exitIcon",
             popover: {
-              title: "Log Out",
-              description: "Click here to end your session.",
+              title: "Sair",
+              description: "Clique aqui para finalizar sua sessão.",
               side: "left",
               align: "start",
             },
