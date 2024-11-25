@@ -21,8 +21,13 @@ type IProps = {
 export default function ResetPassword({ searchParams }: IProps) {
   const { register, handleSubmit, setValue } = useForm<IUser>();
   const router = useRouter();
-  const userId = searchParams.userId;
-  const code = searchParams.code;
+  const userId = Array.isArray(searchParams.userId)
+    ? searchParams.userId[0]
+    : searchParams.userId;
+  const code = Array.isArray(searchParams.code)
+    ? searchParams.code[0]
+    : searchParams.code;
+
   const [showPassword, setShowPassword] = useState<Boolean>(false);
   const [showConfirmPassword, setShowConfirmPasword] = useState<Boolean>(false);
 
@@ -32,8 +37,8 @@ export default function ResetPassword({ searchParams }: IProps) {
         return router.push("/");
       }
 
-      setValue("userId", userId as string);
-      setValue("code", code as string);
+      setValue("userId", userId);
+      setValue("code", code);
     })();
   }, [searchParams]);
 
