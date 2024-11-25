@@ -21,11 +21,9 @@ const addRefreshSubscriber = (callback: any) => {
 
 api.interceptors.request.use(
   (config) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("ACCESS_TOKEN");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = localStorage?.getItem("ACCESS_TOKEN");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -36,24 +34,21 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     if (error.response && error.response.status === 401) {
-      if (typeof window === "undefined") return Promise.reject(error);
-
       if (!isRefreshing) {
         isRefreshing = true;
         try {
-          const refreshToken = localStorage.getItem("REFRESH_TOKEN");
+          const refreshToken = localStorage?.getItem("REFRESH_TOKEN");
           const response = await axios.post(`${API_URL}/auth/refresh-token`, {
             refreshToken,
           });
           const newAccessToken = response.data.accessToken;
-          localStorage.setItem("ACCESS_TOKEN", newAccessToken);
+          localStorage?.setItem("ACCESS_TOKEN", newAccessToken);
           isRefreshing = false;
           onRefreshed(newAccessToken);
         } catch (refreshError) {
-          localStorage.removeItem("ACCESS_TOKEN");
-          localStorage.removeItem("REFRESH_TOKEN");
+          localStorage?.removeItem("ACCESS_TOKEN");
+          localStorage?.removeItem("REFRESH_TOKEN");
           window.location.href = "/signin";
           return Promise.reject(refreshError);
         }
