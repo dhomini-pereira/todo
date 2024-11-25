@@ -2,6 +2,8 @@
 import Image from 'next/image';
 import qrcode from "../assets/todo_qrcode.png";
 
+export const runtime = "edge";
+
 export default function Page() {
   return (
     <div className="box w-full h-screen flex justify-center items-center">
