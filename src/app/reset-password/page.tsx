@@ -15,7 +15,7 @@ type IUser = {
 };
 
 type IProps = {
-  searchParams: Record<string, string>;
+  searchParams: Record<string, string | string[]>;
 };
 
 export default function ResetPassword({ searchParams }: IProps) {
@@ -32,8 +32,8 @@ export default function ResetPassword({ searchParams }: IProps) {
         return router.push("/");
       }
 
-      setValue("userId", userId);
-      setValue("code", code);
+      setValue("userId", userId as string);
+      setValue("code", code as string);
     })();
   }, [searchParams]);
 
